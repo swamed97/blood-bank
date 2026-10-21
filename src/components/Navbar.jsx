@@ -72,5 +72,3 @@ export const Navbar = ({ activeTab, setActiveTab, donorCount }) => {
     </header>
   );
 };
-  );
-};
