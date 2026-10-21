@@ -40,8 +40,8 @@ export const Hero = ({ setActiveTab, donorCount, bloodGroupCounts, onFilterSelec
             </div>
 
             <h1 style={{
-              fontSize: 'clamp(2.1rem, 4.5vw, 3.4rem)',
-              lineHeight: 1.15,
+              fontSize: 'clamp(1.75rem, 4.5vw, 3.2rem)',
+              lineHeight: 1.18,
               marginBottom: '1rem',
               color: 'var(--text-primary)',
               fontWeight: 800
@@ -76,7 +76,7 @@ export const Hero = ({ setActiveTab, donorCount, bloodGroupCounts, onFilterSelec
               marginBottom: '1.75rem',
               lineHeight: 1.6
             }}>
-              ഒരു ഫോൺ കോളിനപ്പുറം അടിയന്തര ഘട്ടങ്ങളിൽ ഏത് രക്തഗ്രൂപ്പും ലഭ്യമാക്കാൻ ഡിവൈഎഫ്ഐ സന്നദ്ധ രക്തദാന സേന സദാസന്നദ്ധമാണ്. മാനുഷം പദ്ധതിയിലൂടെ നമുക്കൊന്നായി ജീവനുകൾ കാക്കാം.
+              ഒരു ഫോൺ കോളിനപ്പുറം അടിയന്തര ഘട്ടങ്ങളിൽ ഏത് രക്തഗ്രൂപ്പും ലഭ്യമാക്കാൻ ഡിവൈഎഫ്ഐ സന്നദ്ധ രക്തദാന സംഘടന സദാസന്നദ്ധമാണ്. മാനുഷം പദ്ധതിയിലൂടെ നമുക്കൊന്നായി ജീവനുകൾ കാക്കാം.
             </p>
 
             {/* Action Buttons */}
@@ -152,7 +152,7 @@ export const Hero = ({ setActiveTab, donorCount, bloodGroupCounts, onFilterSelec
                 gap: '0.5rem'
               }}>
                 <span style={{ color: '#d90429', fontWeight: 800, fontSize: '0.88rem' }}>
-                  ★ DYFI രക്തദാന സന്നദ്ധ സേന • കൂത്തുപറമ്പ് ബ്ലോക്ക് ★
+                  ★ DYFI രക്തദാന സന്നദ്ധ സംഘടന • കൂത്തുപറമ്പ് ബ്ലോക്ക് ★
                 </span>
               </div>
             </div>

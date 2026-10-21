@@ -1,42 +1,16 @@
 import React from 'react';
-import { Droplet, Shield, Moon, Sun, UserPlus, Search, LayoutDashboard, FileSpreadsheet } from 'lucide-react';
+import { UserPlus, LayoutDashboard, Home } from 'lucide-react';
 
-export const Navbar = ({ activeTab, setActiveTab, darkMode, setDarkMode, donorCount }) => {
+export const Navbar = ({ activeTab, setActiveTab, donorCount }) => {
   return (
-    <header style={{
-      position: 'sticky',
-      top: 0,
-      zIndex: 50,
-      backdropFilter: 'blur(16px)',
-      WebkitBackdropFilter: 'blur(16px)',
-      backgroundColor: 'var(--bg-glass)',
-      borderBottom: '1px solid var(--border-color)',
-      transition: 'all 0.3s ease'
-    }}>
-      <div className="container" style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        height: '4.5rem'
-      }}>
+    <header className="site-header">
+      <div className="container header-container">
         {/* Logo & Brand */}
         <div 
           onClick={() => setActiveTab('home')}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', cursor: 'pointer' }}
+          className="brand-section"
         >
-          <div style={{
-            width: '2.8rem',
-            height: '2.8rem',
-            borderRadius: '0.85rem',
-            background: 'linear-gradient(135deg, #d90429 0%, #b3001e 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 14px rgba(217, 4, 41, 0.4)',
-            overflow: 'hidden',
-            border: '2px solid rgba(255, 255, 255, 0.2)',
-            flexShrink: 0
-          }}>
+          <div className="brand-logo">
             <img 
               src="/dyfi_maanusham.png" 
               alt="DYFI Maanusham" 
@@ -47,100 +21,56 @@ export const Navbar = ({ activeTab, setActiveTab, darkMode, setDarkMode, donorCo
             />
           </div>
           <div>
-            <div style={{
-              fontFamily: 'var(--font-heading)',
-              fontSize: '1.35rem',
-              fontWeight: 800,
-              lineHeight: 1.1,
-              color: '#d90429',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem'
-            }}>
+            <div className="brand-title">
               <span>DYFI മാനുഷം</span>
-              <span style={{ fontSize: '0.9rem', color: '#d90429' }}>★</span>
+              <span className="brand-star">★</span>
             </div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.02em' }}>
+            <div className="brand-subtitle brand-subtitle-full">
               രക്തദാന സന്നദ്ധത • കൂത്തുപറമ്പ് ബ്ലോക്ക് (Kuthuparamba Block)
+            </div>
+            <div className="brand-subtitle brand-subtitle-mobile">
+              കൂത്തുപറമ്പ് ബ്ലോക്ക്
             </div>
           </div>
         </div>
 
         {/* Center Navigation Tabs */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+        <nav className="header-nav">
           <button 
             className={`nav-tab ${activeTab === 'home' ? 'active' : ''}`}
             onClick={() => setActiveTab('home')}
           >
-            Home
+            <Home style={{ width: '0.9rem', height: '0.9rem' }} />
+            <span>Home</span>
           </button>
           
           <button 
             className={`nav-tab ${activeTab === 'register' ? 'active' : ''}`}
             onClick={() => setActiveTab('register')}
           >
-            <UserPlus style={{ width: '1rem', height: '1rem' }} />
-            Register Donor
+            <UserPlus style={{ width: '0.9rem', height: '0.9rem' }} />
+            <span className="nav-text-desktop">Register Donor</span>
+            <span className="nav-text-mobile">Register</span>
           </button>
-
 
           <button 
             className={`nav-tab ${activeTab === 'admin' ? 'active' : ''}`}
             onClick={() => setActiveTab('admin')}
             style={{ position: 'relative' }}
           >
-            <LayoutDashboard style={{ width: '1rem', height: '1rem' }} />
-            Admin Portal
+            <LayoutDashboard style={{ width: '0.9rem', height: '0.9rem' }} />
+            <span className="nav-text-desktop">Admin Portal</span>
+            <span className="nav-text-mobile">Admin</span>
             {donorCount > 0 && (
-              <span style={{
-                fontSize: '0.7rem',
-                backgroundColor: 'rgba(220, 38, 38, 0.15)',
-                color: '#dc2626',
-                padding: '0.1rem 0.45rem',
-                borderRadius: '9999px',
-                fontWeight: 700
-              }}>
+              <span className="nav-badge">
                 {donorCount}
               </span>
             )}
           </button>
         </nav>
-
-        {/* Right Action Tools */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <button 
-            onClick={() => setDarkMode(!darkMode)}
-            title="Toggle Dark / Light Mode"
-            style={{
-              padding: '0.6rem',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--border-color)',
-              backgroundColor: 'var(--bg-card)',
-              color: 'var(--text-primary)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            {darkMode ? (
-              <Sun style={{ width: '1.15rem', height: '1.15rem', color: '#f59e0b' }} />
-            ) : (
-              <Moon style={{ width: '1.15rem', height: '1.15rem', color: '#475569' }} />
-            )}
-          </button>
-
-          <button 
-            className="btn btn-primary"
-            onClick={() => setActiveTab('register')}
-            style={{ fontSize: '0.88rem', padding: '0.55rem 1rem' }}
-          >
-            <span style={{ fontSize: '1rem' }}>★</span>
-            രക്തദാനം ചെയ്യാം
-          </button>
-        </div>
       </div>
     </header>
+  );
+};
   );
 };

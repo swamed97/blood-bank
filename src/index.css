@@ -343,6 +343,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  white-space: nowrap;
 }
 
 .nav-tab:hover {
@@ -354,6 +355,189 @@ h1, h2, h3, h4, h5, h6 {
   color: white;
   background-color: var(--primary);
   box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
+}
+
+/* Responsive Header & Navigation */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background-color: var(--bg-glass);
+  border-bottom: 1px solid var(--border-color);
+  width: 100%;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 4.25rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  gap: 0.5rem;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.brand-logo {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.85rem;
+  background: linear-gradient(135deg, #d90429 0%, #b3001e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(217, 4, 41, 0.35);
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.brand-title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #d90429;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.brand-star {
+  font-size: 0.9rem;
+  color: #d90429;
+}
+
+.brand-subtitle {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.nav-badge {
+  font-size: 0.7rem;
+  background-color: rgba(220, 38, 38, 0.15);
+  color: #dc2626;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
+  font-weight: 700;
+}
+
+.dark .nav-badge {
+  background-color: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+.brand-subtitle-mobile {
+  display: none;
+}
+
+.brand-subtitle-full {
+  display: block;
+}
+
+.nav-text-mobile {
+  display: none;
+}
+
+.nav-text-desktop {
+  display: inline;
+}
+
+.donor-form-card {
+  padding: 2.5rem 2rem;
+}
+
+.donor-pass-card {
+  padding: 2rem;
+}
+
+/* Mobile responsive media query (< 640px) */
+@media (max-width: 640px) {
+  .container {
+    padding: 0 0.85rem;
+  }
+
+  .header-container {
+    min-height: 3.75rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    gap: 0.35rem;
+  }
+
+  .brand-section {
+    gap: 0.5rem;
+  }
+
+  .brand-logo {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.65rem;
+  }
+
+  .brand-title {
+    font-size: 1.05rem;
+  }
+
+  .brand-subtitle-full {
+    display: none;
+  }
+
+  .brand-subtitle-mobile {
+    display: block;
+    font-size: 0.65rem;
+  }
+
+  .header-nav {
+    gap: 0.2rem;
+  }
+
+  .nav-tab {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.78rem;
+    gap: 0.25rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .nav-badge {
+    font-size: 0.65rem;
+    padding: 0.05rem 0.35rem;
+  }
+
+  .nav-text-desktop {
+    display: none;
+  }
+
+  .nav-text-mobile {
+    display: inline;
+  }
+
+  .donor-form-card {
+    padding: 1.5rem 1rem !important;
+  }
+
+  .donor-pass-card {
+    padding: 1.25rem 0.9rem !important;
+  }
 }
 
 /* Floating blood cell decoration */

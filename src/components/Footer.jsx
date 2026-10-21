@@ -101,7 +101,7 @@ export const Footer = ({ setActiveTab }) => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-            <span>മാനുഷം രക്തദാന സന്നദ്ധ സേന</span>
+            <span>മാനുഷം രക്തദാന സന്നദ്ധ സംഘടന</span>
             <Heart style={{ width: '0.85rem', height: '0.85rem', color: '#d90429', fill: '#d90429' }} />
           </div>
         </div>

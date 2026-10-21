@@ -10,7 +10,6 @@ import { Droplet, Search, MapPin, Phone, MessageSquare, Building, Filter, Refres
 
 export function App() {
   const [activeTab, setActiveTab] = useState('home');
-  const [darkMode, setDarkMode] = useState(false); // Default clean light theme
   const [donors, setDonors] = useState([]);
   const [selectedBloodGroup, setSelectedBloodGroup] = useState('ALL');
   const [searchFilterGroup, setSearchFilterGroup] = useState('ALL');
@@ -76,8 +75,6 @@ export function App() {
       <Navbar 
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
         donorCount={donors.length}
       />
 

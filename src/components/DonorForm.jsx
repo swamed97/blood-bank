@@ -148,7 +148,7 @@ export const DonorForm = ({ onDonorAdded }) => {
 
   return (
     <div className="container" style={{ padding: '2.5rem 1rem', maxWidth: '800px' }}>
-      <div className="glass-card" style={{ padding: '2.5rem 2rem' }}>
+      <div className="glass-card donor-form-card">
         
         {/* Form Header */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>

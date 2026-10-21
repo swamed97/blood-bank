@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Copy, Check, FileSpreadsheet, ExternalLink, ShieldCheck, Send, AlertCircle } from 'lucide-react';
 import { generateGoogleAppsScriptCode, postToGoogleSheet } from '../utils/googleSheetService';
 import { getSheetsConfig, saveSheetsConfig } from '../utils/storage';
+import { HARDCODED_SHEETS_CONFIG } from '../config/sheetsConfig';
 
 export const GoogleSheetSetupModal = ({ isOpen, onClose, onSaved }) => {
   if (!isOpen) return null;
@@ -126,12 +127,50 @@ export const GoogleSheetSetupModal = ({ isOpen, onClose, onSaved }) => {
           </div>
           <div>
             <h3 style={{ fontSize: '1.35rem', color: 'var(--text-primary)', margin: 0 }}>
-              Google Sheets Live Sync Setup
+              Google Sheets Database Sync Setup
             </h3>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0 }}>
-              Connect donor submissions directly to your client's Google Sheet
+              Central fixed database connected directly to Google Sheets
             </p>
           </div>
+        </div>
+
+        {/* Central Hardcoded Status Banner */}
+        <div style={{
+          backgroundColor: 'rgba(59, 130, 246, 0.08)',
+          border: '1px solid rgba(59, 130, 246, 0.25)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1rem',
+          marginBottom: '1.25rem',
+          fontSize: '0.85rem',
+          color: 'var(--text-secondary)'
+        }}>
+          <div style={{ fontWeight: 700, color: '#2563eb', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <ShieldCheck style={{ width: '1rem', height: '1rem' }} /> Central Database Configuration (Fixed for all users)
+          </div>
+          <div>
+            The fixed Google Sheet can be hardcoded in <code>src/config/sheetsConfig.js</code>. All visitors and donors automatically connect to it as a shared database without requiring any setup on their devices.
+          </div>
+          {HARDCODED_SHEETS_CONFIG.sheetUrl || HARDCODED_SHEETS_CONFIG.webhookUrl ? (
+            <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <span style={{ color: '#10b981', fontWeight: 600 }}>● Central Sheet is configured in codebase</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setSheetUrlInput(HARDCODED_SHEETS_CONFIG.sheetUrl || '');
+                  setWebhookUrlInput(HARDCODED_SHEETS_CONFIG.webhookUrl || '');
+                }}
+                className="btn btn-secondary"
+                style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}
+              >
+                Reset to Codebase Hardcoded Config
+              </button>
+            </div>
+          ) : (
+            <div style={{ marginTop: '0.5rem', color: '#f59e0b', fontSize: '0.8rem', fontWeight: 600 }}>
+              ℹ️ Hardcoded values in <code>src/config/sheetsConfig.js</code> are currently empty.
+            </div>
+          )}
         </div>
 
         {/* 3 Step Setup Guide */}

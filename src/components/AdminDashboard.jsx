@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 
 import { exportToCSV, deleteDonor, resetToSampleDonors, getSheetsConfig } from '../utils/storage';
-import { GoogleSheetSetupModal } from './GoogleSheetSetupModal';
 
 export const AdminDashboard = ({ 
   donors, 
@@ -41,8 +40,6 @@ export const AdminDashboard = ({
   const [selectedUnit, setSelectedUnit] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Settings Modal State
-  const [isSheetsModalOpen, setIsSheetsModalOpen] = useState(false);
   const sheetsConfig = getSheetsConfig();
 
   const bloodGroups = ['ALL', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
@@ -88,8 +85,11 @@ export const AdminDashboard = ({
     if (username.trim().toLowerCase() === validUsername && password === validPassword) {
       setIsAuthenticated(true);
       setAuthError('');
+      setUsername('');
+      setPassword('');
     } else {
       setAuthError('Invalid Username or Password! Access Denied.');
+      setPassword('');
     }
   };
 
@@ -156,15 +156,16 @@ export const AdminDashboard = ({
             </div>
           )}
 
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleLogin} autoComplete="off">
             <div className="form-group" style={{ marginBottom: '1rem', textAlign: 'left' }}>
               <label className="form-label" style={{ fontSize: '0.82rem' }}>Username</label>
               <input
                 type="text"
+                name="admin_username"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
-                placeholder="Username (admin)"
                 className="form-input"
+                autoComplete="off"
                 required
                 autoFocus
               />
@@ -174,10 +175,11 @@ export const AdminDashboard = ({
               <label className="form-label" style={{ fontSize: '0.82rem' }}>Password</label>
               <input
                 type="password"
+                name="admin_password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="Password (admin123)"
                 className="form-input"
+                autoComplete="new-password"
                 required
               />
             </div>
@@ -186,10 +188,6 @@ export const AdminDashboard = ({
               <Unlock style={{ width: '1rem', height: '1rem' }} /> Login to Admin Portal
             </button>
           </form>
-
-          <div style={{ marginTop: '1.25rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-            Admin Credentials: <strong>Username: admin</strong> | <strong>Password: admin123</strong>
-          </div>
         </div>
       </div>
     );
@@ -261,34 +259,6 @@ export const AdminDashboard = ({
 
         {/* Action Header Buttons */}
         <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
-          <button 
-            onClick={async () => {
-              if (refreshDonors) {
-                const res = await refreshDonors();
-                if (res && res.success) {
-                  setSyncStatus({ type: 'success', message: `✅ Successfully loaded ${res.donors.length} donors from ${res.source || 'Google Sheet'}!` });
-                } else {
-                  setSyncStatus({ type: 'error', message: res?.error || 'Could not fetch from Google Sheet. Check your URL or script.' });
-                }
-              }
-            }}
-            className="btn btn-secondary"
-            style={{ fontSize: '0.88rem' }}
-            disabled={isSyncing}
-          >
-            <RefreshCw style={{ width: '1rem', height: '1rem', color: '#dc2626' }} />
-            {isSyncing ? 'Syncing...' : 'Sync from Google Sheet'}
-          </button>
-
-          <button 
-            onClick={() => setIsSheetsModalOpen(true)}
-            className="btn btn-secondary"
-            style={{ fontSize: '0.88rem' }}
-          >
-            <FileSpreadsheet style={{ width: '1rem', height: '1rem', color: '#10b981' }} />
-            Google Sheets Setup
-          </button>
-
           <button 
             onClick={() => exportToCSV(filteredDonors)}
             className="btn btn-success"
@@ -673,13 +643,6 @@ export const AdminDashboard = ({
         </div>
 
       </div>
-
-      {/* Google Sheets Setup Modal */}
-      <GoogleSheetSetupModal
-        isOpen={isSheetsModalOpen}
-        onClose={() => setIsSheetsModalOpen(false)}
-        onSaved={() => console.log('Google Sheets Config Saved')}
-      />
     </div>
   );
 };

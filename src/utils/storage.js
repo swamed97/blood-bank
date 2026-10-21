@@ -1,3 +1,5 @@
+import { HARDCODED_SHEETS_CONFIG } from '../config/sheetsConfig';
+
 // Key for browser localStorage
 const STORAGE_KEY = 'bloodbond_donors_db';
 const CONFIG_KEY = 'bloodbond_sheets_config';
@@ -63,14 +65,24 @@ export const resetToSampleDonors = () => {
   return [];
 };
 
-// Google Sheet webhook configuration
+// Google Sheet webhook configuration (hardcoded central database with optional local fallback)
 export const getSheetsConfig = () => {
   try {
     const raw = localStorage.getItem(CONFIG_KEY);
-    return raw ? JSON.parse(raw) : { webhookUrl: '', sheetUrl: '' };
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        webhookUrl: (parsed.webhookUrl && parsed.webhookUrl.trim()) || HARDCODED_SHEETS_CONFIG.webhookUrl || '',
+        sheetUrl: (parsed.sheetUrl && parsed.sheetUrl.trim()) || HARDCODED_SHEETS_CONFIG.sheetUrl || ''
+      };
+    }
   } catch (e) {
-    return { webhookUrl: '', sheetUrl: '' };
+    // fallback
   }
+  return {
+    webhookUrl: HARDCODED_SHEETS_CONFIG.webhookUrl || '',
+    sheetUrl: HARDCODED_SHEETS_CONFIG.sheetUrl || ''
+  };
 };
 
 export const saveSheetsConfig = (config) => {

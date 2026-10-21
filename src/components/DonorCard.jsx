@@ -1,21 +1,16 @@
 import React from 'react';
-import { Droplet, Award, CheckCircle, Phone, MapPin, Building, Calendar, Share2, Printer } from 'lucide-react';
+import { Droplet, Award, CheckCircle, Phone, MapPin, Building, Calendar, Share2 } from 'lucide-react';
 
 export const DonorCard = ({ donor, onReset }) => {
   if (!donor) return null;
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   return (
     <div style={{ maxWidth: '550px', margin: '0 auto' }}>
-      <div className="glass-card pulse-card" style={{
+      <div className="glass-card pulse-card donor-pass-card" style={{
         position: 'relative',
         overflow: 'hidden',
         border: '2px solid rgba(220, 38, 38, 0.4)',
-        background: 'linear-gradient(145deg, var(--bg-card) 0%, rgba(220, 38, 38, 0.05) 100%)',
-        padding: '2rem'
+        background: 'linear-gradient(145deg, var(--bg-card) 0%, rgba(220, 38, 38, 0.05) 100%)'
       }}>
         {/* Top Header Card Banner */}
         <div style={{
@@ -131,7 +126,7 @@ export const DonorCard = ({ donor, onReset }) => {
           </div>
         </div>
 
-        {/* QR Code Mockup & Verification Stamp */}
+        {/* Saved to Admin Database Confirmation */}
         <div style={{
           marginTop: '1.5rem',
           padding: '1rem',
@@ -140,24 +135,12 @@ export const DonorCard = ({ donor, onReset }) => {
           border: '1px solid rgba(220, 38, 38, 0.15)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          gap: '0.5rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <CheckCircle style={{ width: '1.25rem', height: '1.25rem', color: '#10b981' }} />
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-              Saved to Admin Database
-            </span>
-          </div>
-          
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button 
-              onClick={handlePrint} 
-              className="btn btn-secondary"
-              style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem' }}
-            >
-              <Printer style={{ width: '0.85rem', height: '0.85rem' }} /> Print Pass
-            </button>
-          </div>
+          <CheckCircle style={{ width: '1.25rem', height: '1.25rem', color: '#10b981' }} />
+          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+            Saved to Admin Database
+          </span>
         </div>
       </div>
 
