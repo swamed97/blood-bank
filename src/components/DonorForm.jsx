@@ -3,6 +3,7 @@ import { User, Phone, MapPin, Building, Heart, CheckCircle2, AlertCircle, Drople
 import confetti from 'canvas-confetti';
 import { saveDonor } from '../utils/storage';
 import { postToGoogleSheet } from '../utils/googleSheetService';
+import { postDonorToSupabase } from '../utils/supabaseService';
 import { DonorCard } from './DonorCard';
 
 export const DonorForm = ({ onDonorAdded }) => {
@@ -76,7 +77,10 @@ export const DonorForm = ({ onDonorAdded }) => {
       // 1. Save locally
       const saved = saveDonor(payload);
 
-      // 2. Post to Google Sheet Webhook if configured
+      // 2. Post to Supabase database (cloud)
+      await postDonorToSupabase(saved);
+
+      // 3. Post to Google Sheet Webhook if configured (backup)
       await postToGoogleSheet(saved);
 
       // 3. Trigger confetti celebration

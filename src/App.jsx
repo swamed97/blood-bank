@@ -6,6 +6,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { Footer } from './components/Footer';
 import { getStoredDonors } from './utils/storage';
 import { fetchDonorsFromGoogleSheet } from './utils/googleSheetService';
+import { fetchDonorsFromSupabase } from './utils/supabaseService';
 import { Droplet, Search, MapPin, Phone, MessageSquare, Building, Filter, RefreshCw } from 'lucide-react';
 
 export function App() {
@@ -16,10 +17,18 @@ export function App() {
   const [searchUnit, setSearchUnit] = useState('ALL');
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Sync donors on mount (prioritizing live Google Sheet)
+  // Sync donors on mount (prioritizing Supabase cloud database)
   const refreshDonors = async () => {
     setIsSyncing(true);
     try {
+      // 1. Try Supabase cloud database
+      const sbResult = await fetchDonorsFromSupabase();
+      if (sbResult && sbResult.success && Array.isArray(sbResult.donors)) {
+        setDonors(sbResult.donors);
+        return sbResult;
+      }
+
+      // 2. Fallback to Google Sheet if configured
       const result = await fetchDonorsFromGoogleSheet();
       if (result && result.success && Array.isArray(result.donors)) {
         setDonors(result.donors);

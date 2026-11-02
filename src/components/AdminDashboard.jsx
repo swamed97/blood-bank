@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 
 import { exportToCSV, deleteDonor, resetToSampleDonors, getSheetsConfig } from '../utils/storage';
+import { deleteDonorFromSupabase } from '../utils/supabaseService';
+import { SUPABASE_CONFIG } from '../config/supabaseConfig';
 
 export const AdminDashboard = ({ 
   donors, 
@@ -101,8 +103,9 @@ export const AdminDashboard = ({
   };
 
   // Delete Handler
-  const handleDelete = (id, name) => {
+  const handleDelete = async (id, name) => {
     if (window.confirm(`Are you sure you want to delete donor record for ${name}?`)) {
+      await deleteDonorFromSupabase(id);
       const updated = deleteDonor(id);
       setDonors(updated);
     }
@@ -221,7 +224,21 @@ export const AdminDashboard = ({
               <ShieldCheck style={{ width: '0.9rem', height: '0.9rem' }} /> ADMIN MODE LOGGED IN
             </span>
 
-            {sheetsConfig.webhookUrl ? (
+            {SUPABASE_CONFIG.url ? (
+              <span style={{
+                padding: '0.25rem 0.6rem',
+                borderRadius: 'var(--radius-md)',
+                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                color: '#10b981',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.3rem'
+              }}>
+                <CheckCircle style={{ width: '0.9rem', height: '0.9rem' }} /> Supabase Cloud DB Live
+              </span>
+            ) : sheetsConfig.webhookUrl ? (
               <span style={{
                 padding: '0.25rem 0.6rem',
                 borderRadius: 'var(--radius-md)',
@@ -235,21 +252,7 @@ export const AdminDashboard = ({
               }}>
                 <CheckCircle style={{ width: '0.9rem', height: '0.9rem' }} /> Google Sheets Sync Live
               </span>
-            ) : (
-              <span style={{
-                padding: '0.25rem 0.6rem',
-                borderRadius: 'var(--radius-md)',
-                backgroundColor: 'rgba(245, 158, 11, 0.12)',
-                color: '#f59e0b',
-                fontWeight: 700,
-                fontSize: '0.8rem',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.3rem'
-              }}>
-                ● Webhook Not Configured
-              </span>
-            )}
+            ) : null}
           </div>
 
           <h2 style={{ fontSize: '2rem', color: 'var(--text-primary)', marginTop: '0.4rem', fontWeight: 800 }}>
