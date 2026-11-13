@@ -39,9 +39,10 @@ export const Navbar = ({ activeTab, setActiveTab, donorCount }) => {
           <button 
             className={`nav-tab ${activeTab === 'home' ? 'active' : ''}`}
             onClick={() => setActiveTab('home')}
+            title="Home"
           >
             <Home style={{ width: '0.9rem', height: '0.9rem' }} />
-            <span>Home</span>
+            <span className="nav-text-desktop">Home</span>
           </button>
           
           <button 

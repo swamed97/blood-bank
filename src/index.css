@@ -299,14 +299,20 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.9rem;
 }
 
+.admin-container {
+  max-width: 1440px;
+  width: 100%;
+}
+
 .data-table th {
   background-color: rgba(220, 38, 38, 0.06);
   color: var(--text-primary);
   font-weight: 700;
-  padding: 0.9rem 1rem;
+  padding: 0.65rem 0.55rem;
   border-bottom: 2px solid var(--border-color);
   font-family: var(--font-heading);
   white-space: nowrap;
+  font-size: 0.82rem;
 }
 
 .dark .data-table th {
@@ -314,7 +320,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .data-table td {
-  padding: 0.85rem 1rem;
+  padding: 0.6rem 0.55rem;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-secondary);
 }
@@ -469,33 +475,189 @@ h1, h2, h3, h4, h5, h6 {
   padding: 2rem;
 }
 
+/* Admin Dashboard & Status Filter Components */
+.admin-page-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 0.4rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.25;
+}
+
+.admin-actions-bar {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.status-filter-row {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.status-filter-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.status-filter-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.status-btn {
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1.5px solid var(--border-color);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.status-btn:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.status-btn.active-all {
+  border-color: #dc2626;
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+.status-btn.active-available {
+  border-color: #10b981;
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.status-btn.active-donated {
+  border-color: #d97706;
+  background-color: #d97706;
+  color: #ffffff;
+}
+
+.table-scroll-hint {
+  display: none;
+}
+
 /* Mobile responsive media query (< 640px) */
 @media (max-width: 640px) {
   .container {
-    padding: 0 0.85rem;
+    padding: 0 0.75rem;
+  }
+
+  .admin-container {
+    padding: 1.25rem 0.65rem !important;
+  }
+
+  .admin-page-title {
+    font-size: 1.25rem !important;
+    line-height: 1.35 !important;
+    margin-top: 0.3rem !important;
+    margin-bottom: 0.85rem !important;
+  }
+
+  .admin-actions-bar {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  .admin-actions-bar .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0.6rem 0.4rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .status-filter-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.6rem !important;
+  }
+
+  .status-filter-header {
+    justify-content: space-between !important;
+  }
+
+  .status-filter-buttons {
+    display: grid !important;
+    grid-template-columns: 1fr 1.15fr 1.15fr !important;
+    gap: 0.35rem !important;
+    width: 100% !important;
+  }
+
+  .status-btn {
+    padding: 0.45rem 0.25rem !important;
+    font-size: 0.72rem !important;
+    text-align: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
+
+  .table-scroll-hint {
+    display: block !important;
+    font-size: 0.72rem !important;
+    color: #dc2626 !important;
+    background: rgba(220, 38, 38, 0.08) !important;
+    padding: 0.4rem 0.6rem !important;
+    border-radius: var(--radius-md) !important;
+    margin-bottom: 0.75rem !important;
+    text-align: center !important;
+    font-weight: 700 !important;
   }
 
   .header-container {
-    min-height: 3.75rem;
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    gap: 0.35rem;
+    min-height: 3.5rem;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    gap: 0.25rem;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
   }
 
   .brand-section {
-    gap: 0.5rem;
+    gap: 0.4rem;
+    min-width: 0;
+    flex-shrink: 1;
   }
 
   .brand-logo {
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 0.65rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.55rem;
   }
 
   .brand-title {
-    font-size: 1.05rem;
+    font-size: 0.92rem;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .brand-star {
+    display: none;
   }
 
   .brand-subtitle-full {
@@ -504,23 +666,28 @@ h1, h2, h3, h4, h5, h6 {
 
   .brand-subtitle-mobile {
     display: block;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
   }
 
   .header-nav {
     gap: 0.2rem;
+    flex-shrink: 0;
   }
 
   .nav-tab {
-    padding: 0.4rem 0.55rem;
-    font-size: 0.78rem;
-    gap: 0.25rem;
+    padding: 0.35rem 0.45rem;
+    font-size: 0.74rem;
+    gap: 0.2rem;
     border-radius: var(--radius-sm);
   }
 
   .nav-badge {
     font-size: 0.65rem;
-    padding: 0.05rem 0.35rem;
+    padding: 0.05rem 0.3rem;
   }
 
   .nav-text-desktop {

@@ -401,7 +401,7 @@ export const AdminDashboard = ({
   }
 
   return (
-    <div className="container" style={{ padding: '2.5rem 1rem' }}>
+    <div className="container admin-container">
       
       {/* Top Admin Banner */}
       <div style={{
@@ -410,7 +410,7 @@ export const AdminDashboard = ({
         justifyContent: 'space-between',
         flexWrap: 'wrap',
         gap: '1rem',
-        marginBottom: '2rem'
+        marginBottom: '1.5rem'
       }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
@@ -429,13 +429,13 @@ export const AdminDashboard = ({
             </span>
           </div>
 
-          <h2 style={{ fontSize: '2rem', color: 'var(--text-primary)', marginTop: '0.4rem', fontWeight: 800 }}>
+          <h2 className="admin-page-title">
             DYFI അതിജീവനം - രക്തദാതാക്കളുടെ മാനേജ്മെന്റ് പോർട്ടൽ
           </h2>
         </div>
 
         {/* Action Header Buttons */}
-        <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+        <div className="admin-actions-bar">
           <button 
             onClick={() => exportToCSV(filteredDonors)}
             className="btn btn-success"
@@ -607,81 +607,47 @@ export const AdminDashboard = ({
         </div>
 
         {/* Row 3: Status Filter (Available vs Donated Cooldown) */}
-        <div style={{
-          paddingTop: '1rem',
-          marginTop: '1rem',
-          borderTop: '1px solid var(--border-color)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '0.75rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div className="status-filter-row">
+          <div className="status-filter-header">
             <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
               Donation Status:
             </span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              ⏳ Auto-cooldown: 90d (Male) • 120d (Female)
+            </span>
+          </div>
+
+          <div className="status-filter-buttons">
             <button
               type="button"
               onClick={() => setSelectedStatus('ALL')}
-              style={{
-                padding: '0.35rem 0.75rem',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                border: '1.5px solid',
-                borderColor: selectedStatus === 'ALL' ? '#dc2626' : 'var(--border-color)',
-                backgroundColor: selectedStatus === 'ALL' ? '#dc2626' : 'transparent',
-                color: selectedStatus === 'ALL' ? '#ffffff' : 'var(--text-primary)',
-                cursor: 'pointer'
-              }}
+              className={`status-btn ${selectedStatus === 'ALL' ? 'active-all' : ''}`}
             >
               All ({statusCounts.total})
             </button>
             <button
               type="button"
               onClick={() => setSelectedStatus('AVAILABLE')}
-              style={{
-                padding: '0.35rem 0.75rem',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                border: '1.5px solid',
-                borderColor: selectedStatus === 'AVAILABLE' ? '#10b981' : 'var(--border-color)',
-                backgroundColor: selectedStatus === 'AVAILABLE' ? '#10b981' : 'transparent',
-                color: selectedStatus === 'AVAILABLE' ? '#ffffff' : '#059669',
-                cursor: 'pointer'
-              }}
+              className={`status-btn ${selectedStatus === 'AVAILABLE' ? 'active-available' : ''}`}
             >
               ● Available ({statusCounts.available})
             </button>
             <button
               type="button"
               onClick={() => setSelectedStatus('DONATED')}
-              style={{
-                padding: '0.35rem 0.75rem',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                border: '1.5px solid',
-                borderColor: selectedStatus === 'DONATED' ? '#d97706' : 'var(--border-color)',
-                backgroundColor: selectedStatus === 'DONATED' ? '#d97706' : 'transparent',
-                color: selectedStatus === 'DONATED' ? '#ffffff' : '#b45309',
-                cursor: 'pointer'
-              }}
+              className={`status-btn ${selectedStatus === 'DONATED' ? 'active-donated' : ''}`}
             >
-              ● Donated / Cooldown ({statusCounts.donated})
+              ● Donated ({statusCounts.donated})
             </button>
-          </div>
-
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-            ⏳ Auto-recovery: <strong>90 days</strong> (Male) • <strong>120 days</strong> (Female)
           </div>
         </div>
       </div>
 
       {/* DONOR DATA TABLE */}
       <div className="glass-card" style={{ padding: '1rem', overflow: 'hidden' }}>
+        <div className="table-scroll-hint">
+          👈 Swipe table horizontally to view all details & actions 👉
+        </div>
         
         {filteredDonors.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '3.5rem 1rem' }}>
@@ -751,17 +717,16 @@ export const AdminDashboard = ({
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Full Name</th>
                   <th>Gender</th>
-                  <th>Blood Group</th>
+                  <th style={{ textAlign: 'center' }}>Blood</th>
                   <th>Mobile Number</th>
                   <th>Unit Name</th>
                   <th>Address</th>
                   <th>Age / Wt</th>
                   <th>Last Donated</th>
                   <th>Status</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
+                  <th style={{ textAlign: 'center', width: '165px' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -772,76 +737,67 @@ export const AdminDashboard = ({
 
                   return (
                     <tr key={d.id}>
-                      <td style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                        {d.id}
-                      </td>
-
-                      <td style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>
+                      <td style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
                         {d.name}
                       </td>
 
-                      <td style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                      <td style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                         {d.gender || '-'}
                       </td>
 
-                      <td>
-                        <span className="blood-badge">
+                      <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <span className="blood-badge" style={{ padding: '0.2rem 0.5rem', fontSize: '0.82rem' }}>
                           {d.bloodGroup}
                         </span>
                       </td>
 
-                      <td style={{ fontFamily: 'monospace', fontWeight: 600 }}>
+                      <td style={{ fontFamily: 'monospace', fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
                         {d.mobile}
                       </td>
 
-                      <td style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>
+                      <td style={{ fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
                         {d.unitName}
                       </td>
 
-                      <td style={{ maxWidth: '220px', whiteSpace: 'normal', fontSize: '0.85rem' }}>
+                      <td style={{ fontSize: '0.85rem' }}>
                         {d.address}
                       </td>
 
-                      <td style={{ fontSize: '0.85rem' }}>
-                        {d.age ? `${d.age} yrs` : '-'} / {d.weight ? `${d.weight} kg` : '-'}
+                      <td style={{ fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+                        {d.age ? `${d.age}y` : '-'}/{d.weight ? `${d.weight}k` : '-'}
                       </td>
 
-                      <td style={{ fontSize: '0.85rem', fontWeight: 600, color: (d.lastDonatedDate || d.lastDonated) ? '#dc2626' : 'var(--text-muted)' }}>
+                      <td style={{ fontSize: '0.82rem', fontWeight: 600, color: (d.lastDonatedDate || d.lastDonated) ? '#dc2626' : 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                         {d.lastDonatedDate ? formatReadableDate(d.lastDonatedDate) : (d.lastDonated || '-')}
                       </td>
 
-                      <td>
+                      <td style={{ whiteSpace: 'nowrap' }}>
                         {isDonated ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
                             <span style={{
-                              fontSize: '0.75rem',
+                              fontSize: '0.72rem',
                               fontWeight: 700,
                               color: '#d97706',
-                              padding: '0.15rem 0.55rem',
+                              padding: '0.15rem 0.45rem',
                               borderRadius: '9999px',
                               backgroundColor: 'rgba(217, 119, 6, 0.12)',
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: '0.25rem',
+                              gap: '0.2rem',
                               width: 'fit-content'
                             }}>
-                              ● Donated (രക്തം നൽകി)
+                              ● Donated
                             </span>
-                            <span style={{ fontSize: '0.72rem', color: '#b45309', fontWeight: 600 }}>
-                              ⏳ {eligibility.daysRemaining} days left ({d.gender === 'Female' ? '120d' : '90d'})
+                            <span style={{ fontSize: '0.68rem', color: '#b45309', fontWeight: 600 }}>
+                              ⏳ {eligibility.daysRemaining}d left ({d.gender === 'Female' ? '120d' : '90d'})
                             </span>
-                            {eligibility.nextEligibleDate && (
-                              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                                Next: {formatReadableDate(eligibility.nextEligibleDate)}
-                              </span>
-                            )}
                           </div>
                         ) : (
                           <span style={{
-                            fontSize: '0.78rem',
+                            fontSize: '0.75rem',
                             fontWeight: 700,
                             color: '#10b981',
-                            padding: '0.15rem 0.55rem',
+                            padding: '0.15rem 0.5rem',
                             borderRadius: '9999px',
                             backgroundColor: 'rgba(16, 185, 129, 0.12)',
                             display: 'inline-flex',
@@ -849,22 +805,22 @@ export const AdminDashboard = ({
                             gap: '0.25rem',
                             width: 'fit-content'
                           }}>
-                            ● Available (സന്നദ്ധൻ)
+                            ● Available
                           </span>
                         )}
                       </td>
 
                       {/* Contact & Action Icons */}
-                      <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end', alignItems: 'center' }}>
+                      <td style={{ textAlign: 'center', width: '165px', whiteSpace: 'nowrap' }}>
+                        <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'center', alignItems: 'center' }}>
                           
                           {/* Mark Donated / Reset to Available Button */}
                           {isDonated ? (
                             <button
                               onClick={() => handleResetToAvailable(d)}
                               style={{
-                                padding: '0.35rem 0.55rem',
-                                fontSize: '0.75rem',
+                                padding: '0.3rem 0.5rem',
+                                fontSize: '0.74rem',
                                 fontWeight: 700,
                                 backgroundColor: 'rgba(16, 185, 129, 0.12)',
                                 border: '1px solid #10b981',
@@ -873,20 +829,20 @@ export const AdminDashboard = ({
                                 cursor: 'pointer',
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '0.25rem',
+                                gap: '0.2rem',
                                 whiteSpace: 'nowrap'
                               }}
-                              title="Clear cooldown & mark as Available"
+                              title="Clear cooldown & mark Available"
                             >
-                              <CheckCircle style={{ width: '0.8rem', height: '0.8rem' }} />
-                              Set Available
+                              <CheckCircle style={{ width: '0.75rem', height: '0.75rem' }} />
+                              Available
                             </button>
                           ) : (
                             <button
                               onClick={() => handleOpenDonationModal(d)}
                               style={{
-                                padding: '0.35rem 0.55rem',
-                                fontSize: '0.75rem',
+                                padding: '0.3rem 0.5rem',
+                                fontSize: '0.74rem',
                                 fontWeight: 700,
                                 backgroundColor: '#dc2626',
                                 border: 'none',
@@ -895,13 +851,13 @@ export const AdminDashboard = ({
                                 cursor: 'pointer',
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '0.25rem',
+                                gap: '0.2rem',
                                 whiteSpace: 'nowrap'
                               }}
                               title="Mark as Donated with Date"
                             >
-                              <Droplet style={{ width: '0.8rem', height: '0.8rem' }} />
-                              Mark Donated
+                              <Droplet style={{ width: '0.75rem', height: '0.75rem' }} />
+                              Donated
                             </button>
                           )}
 
@@ -910,45 +866,60 @@ export const AdminDashboard = ({
                             href={whatsappUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="btn"
                             style={{
-                              padding: '0.35rem 0.65rem',
-                              fontSize: '0.78rem',
+                              width: '1.85rem',
+                              height: '1.85rem',
                               backgroundColor: '#25D366',
                               color: '#ffffff',
                               borderRadius: 'var(--radius-md)',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
                               textDecoration: 'none'
                             }}
                             title="Send WhatsApp Emergency Message"
                           >
-                            <MessageSquare style={{ width: '0.85rem', height: '0.85rem' }} />
-                            Chat
+                            <MessageSquare style={{ width: '0.95rem', height: '0.95rem' }} />
                           </a>
 
                           {/* Direct Call Button */}
                           <a
                             href={`tel:${d.mobile}`}
-                            className="btn btn-secondary"
-                            style={{ padding: '0.35rem 0.6rem', fontSize: '0.78rem' }}
+                            style={{
+                              width: '1.85rem',
+                              height: '1.85rem',
+                              backgroundColor: 'transparent',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: 'var(--radius-md)',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: 'var(--text-primary)',
+                              textDecoration: 'none'
+                            }}
                             title="Call Donor"
                           >
-                            <Phone style={{ width: '0.85rem', height: '0.85rem' }} />
+                            <Phone style={{ width: '0.9rem', height: '0.9rem' }} />
                           </a>
 
                           {/* Delete Action */}
                           <button
                             onClick={() => handleDelete(d.id, d.name)}
                             style={{
-                              padding: '0.35rem 0.6rem',
-                              backgroundColor: 'transparent',
-                              border: '1px solid var(--border-color)',
+                              width: '1.85rem',
+                              height: '1.85rem',
+                              backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                              border: '1px solid rgba(239, 68, 68, 0.3)',
                               borderRadius: 'var(--radius-md)',
                               color: '#ef4444',
-                              cursor: 'pointer'
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
                             }}
                             title="Delete Record"
                           >
-                            <Trash2 style={{ width: '0.85rem', height: '0.85rem' }} />
+                            <Trash2 style={{ width: '0.9rem', height: '0.9rem' }} />
                           </button>
                         </div>
                       </td>
