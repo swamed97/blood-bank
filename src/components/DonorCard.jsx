@@ -38,7 +38,7 @@ export const DonorCard = ({ donor, onReset }) => {
             </div>
             <div>
               <h3 style={{ fontSize: '1.2rem', margin: 0, color: 'var(--text-primary)', fontWeight: 800 }}>
-                DYFI മാനുഷം പാസ്സ്
+                DYFI അതിജീവനം പാസ്സ്
               </h3>
               <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 700 }}>
                 സന്നദ്ധ രക്തദാതാവ് ID: <span style={{ color: '#d90429' }}>{donor.id}</span>
@@ -98,6 +98,17 @@ export const DonorCard = ({ donor, onReset }) => {
                 {donor.unitName}
               </div>
             </div>
+
+            {donor.lastDonated && (
+              <div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <Calendar style={{ width: '0.75rem', height: '0.75rem' }} /> Last Donated
+                </div>
+                <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#dc2626' }}>
+                  {donor.lastDonated}
+                </div>
+              </div>
+            )}
           </div>
 
           <div>

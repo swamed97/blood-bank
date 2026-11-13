@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Phone, MapPin, Building, Heart, CheckCircle2, AlertCircle, Droplet, Sparkles, Send } from 'lucide-react';
+import { User, Phone, MapPin, Building, Heart, CheckCircle2, AlertCircle, Droplet, Sparkles, Send, Calendar } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { saveDonor } from '../utils/storage';
 import { postToGoogleSheet } from '../utils/googleSheetService';
@@ -18,6 +18,8 @@ export const DonorForm = ({ onDonorAdded }) => {
     address: '',
     age: '25',
     weight: '65',
+    lastDonatedMonth: '',
+    lastDonatedYear: '',
     availability: 'Available',
     agreedToTerms: true
   });
@@ -71,6 +73,11 @@ export const DonorForm = ({ onDonorAdded }) => {
         address: formData.address.trim(),
         age: parseInt(formData.age) || 25,
         weight: parseInt(formData.weight) || 60,
+        lastDonatedMonth: formData.lastDonatedMonth || '',
+        lastDonatedYear: formData.lastDonatedYear || '',
+        lastDonated: formData.lastDonatedMonth && formData.lastDonatedYear 
+          ? `${formData.lastDonatedMonth} ${formData.lastDonatedYear}` 
+          : (formData.lastDonatedYear || formData.lastDonatedMonth || 'First Time / Never'),
         availability: formData.availability
       };
 
@@ -115,6 +122,8 @@ export const DonorForm = ({ onDonorAdded }) => {
       address: '',
       age: '25',
       weight: '65',
+      lastDonatedMonth: '',
+      lastDonatedYear: '',
       availability: 'Available',
       agreedToTerms: true
     });
@@ -141,7 +150,7 @@ export const DonorForm = ({ onDonorAdded }) => {
             Thank You for Registering!
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', maxWidth: '500px', margin: '0.5rem auto 0' }}>
-            Your details have been saved to the donor database and Google Sheets. Here is your digital donor pass:
+            Your details have been saved to the database. Here is your digital donor pass:
           </p>
         </div>
 
@@ -177,7 +186,7 @@ export const DonorForm = ({ onDonorAdded }) => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
-            <span style={{ color: '#d90429', fontWeight: 800 }}>★ DYFI മാനുഷം ★</span>
+            <span style={{ color: '#d90429', fontWeight: 800 }}>★ DYFI അതിജീവനം ★</span>
           </div>
 
           <h2 style={{ fontSize: '1.85rem', color: 'var(--text-primary)', marginBottom: '0.4rem', fontWeight: 800 }}>
@@ -354,6 +363,55 @@ export const DonorForm = ({ onDonorAdded }) => {
             </div>
           </div>
 
+          {/* Last Blood Donated (Month & Year) */}
+          <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+            <label className="form-label">
+              <Calendar style={{ width: '0.9rem', height: '0.9rem', color: '#dc2626' }} /> Last Blood Donated (അവസാനം രക്തം നൽകിയ മാസം & വർഷം)
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+              <select
+                name="lastDonatedMonth"
+                value={formData.lastDonatedMonth}
+                onChange={handleChange}
+                className="form-select"
+              >
+                <option value="">-- Select Month --</option>
+                <option value="January">January (ജനുവരി)</option>
+                <option value="February">February (ഫെബ്രുവരി)</option>
+                <option value="March">March (മാർച്ച്)</option>
+                <option value="April">April (ഏപ്രിൽ)</option>
+                <option value="May">May (മേയ്)</option>
+                <option value="June">June (ജൂൺ)</option>
+                <option value="July">July (ജൂലൈ)</option>
+                <option value="August">August (ഓഗസ്റ്റ്)</option>
+                <option value="September">September (സെപ്റ്റംബർ)</option>
+                <option value="October">October (ഒക്ടോബർ)</option>
+                <option value="November">November (നവംബർ)</option>
+                <option value="December">December (ഡിസംബർ)</option>
+              </select>
+
+              <select
+                name="lastDonatedYear"
+                value={formData.lastDonatedYear}
+                onChange={handleChange}
+                className="form-select"
+              >
+                <option value="">-- Select Year --</option>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020 or earlier">2020 or earlier</option>
+                <option value="Never / First Time">Never / First Time (ആദ്യമായി)</option>
+              </select>
+            </div>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+              ആദ്യമായി രക്തം ദാനം ചെയ്യുന്ന ആളാണെങ്കിൽ "Never / First Time" തിരഞ്ഞെടുക്കുക.
+            </span>
+          </div>
+
           {/* Submit Button */}
           <div style={{ marginTop: '1.75rem' }}>
             <button
@@ -368,7 +426,7 @@ export const DonorForm = ({ onDonorAdded }) => {
               }}
             >
               {isSubmitting ? (
-                'Saving to Database & Google Sheets...'
+                'Saving...'
               ) : (
                 <>
                   <Send style={{ width: '1.1rem', height: '1.1rem' }} />

@@ -36,7 +36,7 @@ export const Hero = ({ setActiveTab, donorCount, bloodGroupCounts, onFilterSelec
               letterSpacing: '0.02em'
             }}>
               <Star style={{ width: '0.95rem', height: '0.95rem', fill: '#d90429' }} />
-              DYFI കൂത്തുപറമ്പ് ബ്ലോക്ക് കമ്മിറ്റി (Kuthuparamba Block)
+              DYFI ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല
             </div>
 
             <h1 style={{
@@ -67,7 +67,7 @@ export const Hero = ({ setActiveTab, donorCount, bloodGroupCounts, onFilterSelec
               marginBottom: '1rem',
               letterSpacing: '0.05em'
             }}>
-              DYFI മാനുഷം
+              DYFI അതിജീവനം
             </div>
 
             <p style={{
@@ -76,7 +76,7 @@ export const Hero = ({ setActiveTab, donorCount, bloodGroupCounts, onFilterSelec
               marginBottom: '1.75rem',
               lineHeight: 1.6
             }}>
-              ഒരു ഫോൺ കോളിനപ്പുറം അടിയന്തര ഘട്ടങ്ങളിൽ ഏത് രക്തഗ്രൂപ്പും ലഭ്യമാക്കാൻ ഡിവൈഎഫ്ഐ സന്നദ്ധ രക്തദാന സംഘടന സദാസന്നദ്ധമാണ്. മാനുഷം പദ്ധതിയിലൂടെ നമുക്കൊന്നായി ജീവനുകൾ കാക്കാം.
+              ഒരു ഫോൺ കോളിനപ്പുറം അടിയന്തര ഘട്ടങ്ങളിൽ ഏത് രക്തഗ്രൂപ്പും ലഭ്യമാക്കാൻ ഡിവൈഎഫ്ഐ സന്നദ്ധ രക്തദാന സംഘടന സദാസന്നദ്ധമാണ്. അതിജീവനം പദ്ധതിയിലൂടെ നമുക്കൊന്നായി ജീവനുകൾ കാക്കാം.
             </p>
 
             {/* Action Buttons */}
@@ -152,7 +152,7 @@ export const Hero = ({ setActiveTab, donorCount, bloodGroupCounts, onFilterSelec
                 gap: '0.5rem'
               }}>
                 <span style={{ color: '#d90429', fontWeight: 800, fontSize: '0.88rem' }}>
-                  ★ DYFI രക്തദാന സന്നദ്ധ സംഘടന • കൂത്തുപറമ്പ് ബ്ലോക്ക് ★
+                  ★ DYFI രക്തദാന സന്നദ്ധ സംഘടന • ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല ★
                 </span>
               </div>
             </div>

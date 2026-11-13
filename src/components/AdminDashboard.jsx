@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   ShieldCheck, 
   Search, 
@@ -15,11 +15,17 @@ import {
   CheckCircle,
   Plus,
   Users,
-  Droplet
+  Droplet,
+  KeyRound,
+  X
 } from 'lucide-react';
 
 import { exportToCSV, deleteDonor, resetToSampleDonors, getSheetsConfig } from '../utils/storage';
-import { deleteDonorFromSupabase } from '../utils/supabaseService';
+import { 
+  deleteDonorFromSupabase, 
+  verifyAdminLogin, 
+  updateAdminPassword 
+} from '../utils/supabaseService';
 import { SUPABASE_CONFIG } from '../config/supabaseConfig';
 
 export const AdminDashboard = ({ 
@@ -33,10 +39,20 @@ export const AdminDashboard = ({
 }) => {
   // Admin Authentication State - STRICT LOCKED BY DEFAULT
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [syncStatus, setSyncStatus] = useState(null);
+
+  // Change Password Modal State
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordModalStatus, setPasswordModalStatus] = useState({ type: '', message: '' });
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   // Filters & Search
   const [selectedUnit, setSelectedUnit] = useState('ALL');
@@ -78,28 +94,83 @@ export const AdminDashboard = ({
     });
   }, [donors, selectedBloodGroup, selectedUnit, searchQuery]);
 
-  // Handle Username & Password Authentication
-  const handleLogin = (e) => {
+  // Handle Username & Password Authentication via Supabase
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const validUsername = 'admin';
-    const validPassword = 'admin123';
+    setAuthError('');
+    setIsLoggingIn(true);
 
-    if (username.trim().toLowerCase() === validUsername && password === validPassword) {
-      setIsAuthenticated(true);
-      setAuthError('');
-      setUsername('');
-      setPassword('');
-    } else {
-      setAuthError('Invalid Username or Password! Access Denied.');
-      setPassword('');
+    try {
+      const isValid = await verifyAdminLogin(username, password);
+      if (isValid) {
+        setIsAuthenticated(true);
+        setLoggedInUser(username.trim().toLowerCase());
+        setAuthError('');
+        setUsername('');
+        setPassword('');
+      } else {
+        setAuthError('Invalid Username or Password! Access Denied.');
+        setPassword('');
+      }
+    } catch (err) {
+      setAuthError('Error authenticating. Please try again.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setLoggedInUser('');
     setUsername('');
     setPassword('');
     setAuthError('');
+  };
+
+  // Handle Changing Password
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPasswordModalStatus({ type: '', message: '' });
+
+    if (newPassword.length < 6) {
+      setPasswordModalStatus({ type: 'error', message: 'New password must be at least 6 characters long.' });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordModalStatus({ type: 'error', message: 'New passwords do not match!' });
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+    try {
+      // 1. Verify current password first
+      const isCurrentValid = await verifyAdminLogin(loggedInUser, currentPassword);
+      if (!isCurrentValid) {
+        setPasswordModalStatus({ type: 'error', message: 'Current password is incorrect.' });
+        setIsUpdatingPassword(false);
+        return;
+      }
+
+      // 2. Update to new password in Supabase
+      const res = await updateAdminPassword(loggedInUser, newPassword);
+      if (res.success) {
+        setPasswordModalStatus({ type: 'success', message: '✅ Password updated successfully in database!' });
+        setTimeout(() => {
+          setIsPasswordModalOpen(false);
+          setCurrentPassword('');
+          setNewPassword('');
+          setConfirmPassword('');
+          setPasswordModalStatus({ type: '', message: '' });
+        }, 1500);
+      } else {
+        setPasswordModalStatus({ type: 'error', message: res.error || 'Failed to update password in database.' });
+      }
+    } catch (err) {
+      setPasswordModalStatus({ type: 'error', message: 'Error updating password. Please try again.' });
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   // Delete Handler
@@ -187,8 +258,8 @@ export const AdminDashboard = ({
               />
             </div>
 
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.85rem' }}>
-              <Unlock style={{ width: '1rem', height: '1rem' }} /> Login to Admin Portal
+            <button type="submit" className="btn btn-primary" disabled={isLoggingIn} style={{ width: '100%', padding: '0.85rem' }}>
+              <Unlock style={{ width: '1rem', height: '1rem' }} /> {isLoggingIn ? 'Checking credentials...' : 'Login to Admin Portal'}
             </button>
           </form>
         </div>
@@ -223,40 +294,10 @@ export const AdminDashboard = ({
             }}>
               <ShieldCheck style={{ width: '0.9rem', height: '0.9rem' }} /> ADMIN MODE LOGGED IN
             </span>
-
-            {SUPABASE_CONFIG.url ? (
-              <span style={{
-                padding: '0.25rem 0.6rem',
-                borderRadius: 'var(--radius-md)',
-                backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                color: '#10b981',
-                fontWeight: 700,
-                fontSize: '0.8rem',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.3rem'
-              }}>
-                <CheckCircle style={{ width: '0.9rem', height: '0.9rem' }} /> Supabase Cloud DB Live
-              </span>
-            ) : sheetsConfig.webhookUrl ? (
-              <span style={{
-                padding: '0.25rem 0.6rem',
-                borderRadius: 'var(--radius-md)',
-                backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                color: '#10b981',
-                fontWeight: 700,
-                fontSize: '0.8rem',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.3rem'
-              }}>
-                <CheckCircle style={{ width: '0.9rem', height: '0.9rem' }} /> Google Sheets Sync Live
-              </span>
-            ) : null}
           </div>
 
           <h2 style={{ fontSize: '2rem', color: 'var(--text-primary)', marginTop: '0.4rem', fontWeight: 800 }}>
-            DYFI മാനുഷം - രക്തദാതാക്കളുടെ മാനേജ്മെന്റ് പോർട്ടൽ
+            DYFI അതിജീവനം - രക്തദാതാക്കളുടെ മാനേജ്മെന്റ് പോർട്ടൽ
           </h2>
         </div>
 
@@ -278,6 +319,21 @@ export const AdminDashboard = ({
           >
             <Plus style={{ width: '1rem', height: '1rem' }} />
             Add Donor
+          </button>
+
+          <button 
+            onClick={() => {
+              setIsPasswordModalOpen(true);
+              setPasswordModalStatus({ type: '', message: '' });
+              setCurrentPassword('');
+              setNewPassword('');
+              setConfirmPassword('');
+            }}
+            className="btn btn-secondary"
+            style={{ fontSize: '0.88rem' }}
+            title="Change Admin Password"
+          >
+            <KeyRound style={{ width: '0.9rem', height: '0.9rem', color: '#f59e0b' }} /> Change Password
           </button>
 
           <button 
@@ -497,6 +553,7 @@ export const AdminDashboard = ({
                   <th>Unit Name</th>
                   <th>Address</th>
                   <th>Age / Wt</th>
+                  <th>Last Donated</th>
                   <th>Status</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
@@ -539,6 +596,10 @@ export const AdminDashboard = ({
 
                       <td style={{ fontSize: '0.85rem' }}>
                         {d.age ? `${d.age} yrs` : '-'} / {d.weight ? `${d.weight} kg` : '-'}
+                      </td>
+
+                      <td style={{ fontSize: '0.85rem', fontWeight: 600, color: d.lastDonated ? '#dc2626' : 'var(--text-muted)' }}>
+                        {d.lastDonated || '-'}
                       </td>
 
                       <td>
@@ -646,6 +707,148 @@ export const AdminDashboard = ({
         </div>
 
       </div>
+
+      {/* Change Password Modal */}
+      {isPasswordModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.75)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          zIndex: 100,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.25rem'
+        }}>
+          <div className="glass-card" style={{
+            maxWidth: '440px',
+            width: '100%',
+            backgroundColor: 'var(--bg-card)',
+            padding: '2rem',
+            position: 'relative',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)'
+          }}>
+            {/* Close Button */}
+            <button
+              onClick={() => setIsPasswordModalOpen(false)}
+              style={{
+                position: 'absolute',
+                top: '1.25rem',
+                right: '1.25rem',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                padding: '0.4rem',
+                borderRadius: 'var(--radius-md)'
+              }}
+            >
+              <X style={{ width: '1.3rem', height: '1.3rem' }} />
+            </button>
+
+            {/* Title */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '1.25rem' }}>
+              <div style={{
+                width: '2.5rem',
+                height: '2.5rem',
+                borderRadius: '0.65rem',
+                backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                color: '#f59e0b',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <KeyRound style={{ width: '1.35rem', height: '1.35rem' }} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', margin: 0 }}>
+                  Change Admin Password
+                </h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
+                  Logged in as: <strong>{loggedInUser || 'admin'}</strong>
+                </p>
+              </div>
+            </div>
+
+            {/* Status Alert */}
+            {passwordModalStatus.message && (
+              <div style={{
+                padding: '0.75rem 1rem',
+                borderRadius: 'var(--radius-md)',
+                marginBottom: '1.25rem',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                backgroundColor: passwordModalStatus.type === 'success' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+                color: passwordModalStatus.type === 'success' ? '#10b981' : '#ef4444'
+              }}>
+                {passwordModalStatus.message}
+              </div>
+            )}
+
+            <form onSubmit={handleChangePassword}>
+              <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <label className="form-label" style={{ fontSize: '0.82rem' }}>Current Password</label>
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={e => setCurrentPassword(e.target.value)}
+                  className="form-input"
+                  required
+                  placeholder="Enter current password"
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <label className="form-label" style={{ fontSize: '0.82rem' }}>New Password</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  className="form-input"
+                  required
+                  placeholder="At least 6 characters"
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                <label className="form-label" style={{ fontSize: '0.82rem' }}>Confirm New Password</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  className="form-input"
+                  required
+                  placeholder="Re-enter new password"
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.65rem', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsPasswordModalOpen(false)}
+                  className="btn btn-secondary"
+                  style={{ fontSize: '0.85rem' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdatingPassword}
+                  className="btn btn-primary"
+                  style={{ fontSize: '0.85rem' }}
+                >
+                  {isUpdatingPassword ? 'Updating...' : 'Update Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

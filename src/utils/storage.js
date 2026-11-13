@@ -91,7 +91,7 @@ export const saveSheetsConfig = (config) => {
 
 // Export to CSV helper
 export const exportToCSV = (donors) => {
-  const headers = ['ID', 'Full Name', 'Gender', 'Mobile Number', 'Blood Group', 'Unit Name', 'Address', 'Age', 'Weight (kg)', 'Status', 'Registered Date'];
+  const headers = ['ID', 'Full Name', 'Gender', 'Mobile Number', 'Blood Group', 'Unit Name', 'Address', 'Age', 'Weight (kg)', 'Last Donated', 'Status', 'Registered Date'];
   const rows = donors.map(d => [
     d.id,
     `"${(d.name || '').replace(/"/g, '""')}"`,
@@ -102,6 +102,7 @@ export const exportToCSV = (donors) => {
     `"${(d.address || '').replace(/"/g, '""')}"`,
     d.age,
     d.weight,
+    `"${(d.lastDonated || '').replace(/"/g, '""')}"`,
     d.availability || 'Available',
     d.registeredDate
   ]);

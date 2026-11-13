@@ -111,7 +111,7 @@ export function App() {
                 രക്തദാതാക്കളെ കണ്ടെത്താം (Find Donors)
               </h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-                DYFI മാനുഷം സന്നദ്ധ രക്തദാന ശൃംഖലയിലൂടെ രക്തഗ്രൂപ്പും മേഖലാ യൂണിറ്റും തിരഞ്ഞെടുത്ത് വേഗത്തിൽ ദാതാക്കളെ കണ്ടെത്താം.
+                DYFI അതിജീവനം സന്നദ്ധ രക്തദാന ശൃംഖലയിലൂടെ രക്തഗ്രൂപ്പും മേഖലാ യൂണിറ്റും തിരഞ്ഞെടുത്ത് വേഗത്തിൽ ദാതാക്കളെ കണ്ടെത്താം.
               </p>
             </div>
 
@@ -193,6 +193,13 @@ export function App() {
                         <Building style={{ width: '0.85rem', height: '0.85rem', color: 'var(--text-muted)' }} />
                         <span>{donor.unitName}</span>
                       </div>
+
+                      {donor.lastDonated && (
+                        <div style={{ fontSize: '0.82rem', color: '#b91c1c', display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.5rem', fontWeight: 600 }}>
+                          <span>🩸 Last Donated:</span>
+                          <span>{donor.lastDonated}</span>
+                        </div>
+                      )}
 
                       <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '1rem' }}>
                         <MapPin style={{ width: '0.85rem', height: '0.85rem', shrink: 0 }} />

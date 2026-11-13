@@ -1,5 +1,5 @@
 import React from 'react';
-import { Droplet, Heart, Phone, Mail, Shield, FileSpreadsheet } from 'lucide-react';
+import { Heart } from 'lucide-react';
 
 export const Footer = ({ setActiveTab }) => {
   return (
@@ -11,13 +11,15 @@ export const Footer = ({ setActiveTab }) => {
     }}>
       <div className="container">
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: '2rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          flexWrap: 'wrap',
+          gap: '2.5rem',
           marginBottom: '2.5rem'
         }}>
           {/* Brand Info */}
-          <div>
+          <div style={{ maxWidth: '520px', flex: '1 1 300px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
               <div style={{
                 width: '2.5rem',
@@ -33,17 +35,17 @@ export const Footer = ({ setActiveTab }) => {
                 <img src="/dyfi_maanusham.png" alt="DYFI" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <span style={{ fontSize: '1.3rem', fontWeight: 800, fontFamily: 'var(--font-heading)', color: '#d90429' }}>
-                DYFI മാനുഷം
+                DYFI അതിജീവനം
               </span>
             </div>
 
             <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-              ഡെമോക്രാറ്റിക് യൂത്ത് ഫെഡറേഷൻ ഓഫ് ഇന്ത്യ (DYFI) കൂത്തുപറമ്പ് ബ്ലോക്ക് കമ്മിറ്റിയുടെ ജീവകാരുണ്യ രക്തദാന പദ്ധതി. വിളിപ്പുറം ദൂരത്തായി രക്തദാന സന്നദ്ധത.
+              ഡെമോക്രാറ്റിക് യൂത്ത് ഫെഡറേഷൻ ഓഫ് ഇന്ത്യ (DYFI) ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖലയുടെ ജീവകാരുണ്യ രക്തദാന പദ്ധതി. വിളിപ്പുറം ദൂരത്തായി രക്തദാന സന്നദ്ധത.
             </p>
           </div>
 
           {/* Quick Navigation Links */}
-          <div>
+          <div style={{ flex: '0 0 auto' }}>
             <h4 style={{ fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '1rem' }}>
               Quick Links
             </h4>
@@ -65,23 +67,6 @@ export const Footer = ({ setActiveTab }) => {
               </li>
             </ul>
           </div>
-
-          {/* Emergency Helpline */}
-          <div>
-            <h4 style={{ fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '1rem' }}>
-              Emergency Helpline
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Phone style={{ width: '1rem', height: '1rem', color: '#dc2626' }} />
-                <span>24/7 Helpline: <strong>+91 1800-BLOOD-SAVE</strong></span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Mail style={{ width: '1rem', height: '1rem', color: '#dc2626' }} />
-                <span>Support: <strong>helpline@bloodbond.org</strong></span>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Bottom Bar */}
@@ -97,11 +82,11 @@ export const Footer = ({ setActiveTab }) => {
           color: 'var(--text-muted)'
         }}>
           <div>
-            © {new Date().getFullYear()} DYFI മാനുഷം • കൂത്തുപറമ്പ് ബ്ലോക്ക് കമ്മിറ്റി.
+            © {new Date().getFullYear()} DYFI അതിജീവനം • ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല.
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-            <span>മാനുഷം രക്തദാന സന്നദ്ധ സംഘടന</span>
+            <span>അതിജീവനം രക്തദാന സന്നദ്ധ സംഘടന</span>
             <Heart style={{ width: '0.85rem', height: '0.85rem', color: '#d90429', fill: '#d90429' }} />
           </div>
         </div>

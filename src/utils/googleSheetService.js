@@ -23,6 +23,7 @@ export const postToGoogleSheet = async (donorData) => {
       address: donorData.address,
       age: donorData.age,
       weight: donorData.weight,
+      lastDonated: donorData.lastDonated || '',
       availability: donorData.availability || 'Available'
     };
 

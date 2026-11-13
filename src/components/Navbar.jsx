@@ -22,14 +22,14 @@ export const Navbar = ({ activeTab, setActiveTab, donorCount }) => {
           </div>
           <div>
             <div className="brand-title">
-              <span>DYFI മാനുഷം</span>
+              <span>DYFI അതിജീവനം</span>
               <span className="brand-star">★</span>
             </div>
             <div className="brand-subtitle brand-subtitle-full">
-              രക്തദാന സന്നദ്ധത • കൂത്തുപറമ്പ് ബ്ലോക്ക് (Kuthuparamba Block)
+              രക്തദാന സന്നദ്ധത • ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല
             </div>
             <div className="brand-subtitle brand-subtitle-mobile">
-              കൂത്തുപറമ്പ് ബ്ലോക്ക്
+              ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല
             </div>
           </div>
         </div>
