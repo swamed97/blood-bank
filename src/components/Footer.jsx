@@ -40,7 +40,7 @@ export const Footer = ({ setActiveTab }) => {
             </div>
 
             <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-              ഡെമോക്രാറ്റിക് യൂത്ത് ഫെഡറേഷൻ ഓഫ് ഇന്ത്യ (DYFI) ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖലയുടെ ജീവകാരുണ്യ രക്തദാന പദ്ധതി. വിളിപ്പുറം ദൂരത്തായി രക്തദാന സന്നദ്ധത.
+              ഡെമോക്രാറ്റിക് യൂത്ത് ഫെഡറേഷൻ ഓഫ് ഇന്ത്യ (DYFI) ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല കമ്മിറ്റിയുടെ ജീവകാരുണ്യ രക്തദാന പദ്ധതി. വിളിപ്പുറം ദൂരത്തായി രക്തദാന സന്നദ്ധത.
             </p>
           </div>
 
@@ -82,7 +82,7 @@ export const Footer = ({ setActiveTab }) => {
           color: 'var(--text-muted)'
         }}>
           <div>
-            © {new Date().getFullYear()} DYFI അതിജീവനം • ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല.
+            © {new Date().getFullYear()} DYFI അതിജീവനം • ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല കമ്മിറ്റി.
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>

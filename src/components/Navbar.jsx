@@ -26,10 +26,10 @@ export const Navbar = ({ activeTab, setActiveTab, donorCount }) => {
               <span className="brand-star">★</span>
             </div>
             <div className="brand-subtitle brand-subtitle-full">
-              രക്തദാന സന്നദ്ധത • ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല
+              രക്തദാന സന്നദ്ധത • ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല കമ്മിറ്റി
             </div>
             <div className="brand-subtitle brand-subtitle-mobile">
-              ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല
+              ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല കമ്മിറ്റി
             </div>
           </div>
         </div>

@@ -36,7 +36,7 @@ export const Hero = ({ setActiveTab, donorCount, bloodGroupCounts, onFilterSelec
               letterSpacing: '0.02em'
             }}>
               <Star style={{ width: '0.95rem', height: '0.95rem', fill: '#d90429' }} />
-              DYFI ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല
+              DYFI ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല കമ്മിറ്റി
             </div>
 
             <h1 style={{
@@ -152,7 +152,7 @@ export const Hero = ({ setActiveTab, donorCount, bloodGroupCounts, onFilterSelec
                 gap: '0.5rem'
               }}>
                 <span style={{ color: '#d90429', fontWeight: 800, fontSize: '0.88rem' }}>
-                  ★ DYFI രക്തദാന സന്നദ്ധ സംഘടന • ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല ★
+                  ★ DYFI രക്തദാന സന്നദ്ധ സംഘടന • ചെറുവാഞ്ചേരി വെസ്റ്റ് മേഖല കമ്മിറ്റി ★
                 </span>
               </div>
             </div>
