@@ -7,6 +7,7 @@ import { Footer } from './components/Footer';
 import { getStoredDonors } from './utils/storage';
 import { fetchDonorsFromGoogleSheet } from './utils/googleSheetService';
 import { fetchDonorsFromSupabase } from './utils/supabaseService';
+import { getDonorEligibility, formatReadableDate } from './utils/donorEligibility';
 import { Droplet, Search, MapPin, Phone, MessageSquare, Building, Filter, RefreshCw } from 'lucide-react';
 
 export function App() {
@@ -172,6 +173,8 @@ export function App() {
             }}>
               {publicSearchDonors.map(donor => {
                 const whatsappUrl = `https://wa.me/91${donor.mobile.replace(/\D/g, '')}?text=Hello%20${encodeURIComponent(donor.name)},%20urgent%20blood%20request%20for%20blood%20group%20${encodeURIComponent(donor.bloodGroup)}%20from%20BloodBank.`;
+                const eligibility = donor.eligibility || getDonorEligibility(donor);
+                const isDonated = eligibility.status === 'Donated';
 
                 return (
                   <div key={donor.id} className="glass-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -180,9 +183,29 @@ export function App() {
                         <span className="blood-badge" style={{ fontSize: '1rem', padding: '0.35rem 0.75rem' }}>
                           {donor.bloodGroup}
                         </span>
-                        <span style={{ fontSize: '0.78rem', color: '#10b981', fontWeight: 700 }}>
-                          ● {donor.availability || 'Available'}
-                        </span>
+                        {isDonated ? (
+                          <span style={{
+                            fontSize: '0.74rem',
+                            color: '#b45309',
+                            fontWeight: 700,
+                            padding: '0.2rem 0.5rem',
+                            borderRadius: '9999px',
+                            backgroundColor: 'rgba(245, 158, 11, 0.12)'
+                          }}>
+                            ● Donated ({eligibility.daysRemaining}d left)
+                          </span>
+                        ) : (
+                          <span style={{
+                            fontSize: '0.75rem',
+                            color: '#10b981',
+                            fontWeight: 700,
+                            padding: '0.2rem 0.5rem',
+                            borderRadius: '9999px',
+                            backgroundColor: 'rgba(16, 185, 129, 0.12)'
+                          }}>
+                            ● Available
+                          </span>
+                        )}
                       </div>
 
                       <h3 style={{ fontSize: '1.2rem', color: 'var(--text-primary)', marginBottom: '0.3rem' }}>
@@ -194,10 +217,10 @@ export function App() {
                         <span>{donor.unitName}</span>
                       </div>
 
-                      {donor.lastDonated && (
+                      {(donor.lastDonatedDate || donor.lastDonated) && (
                         <div style={{ fontSize: '0.82rem', color: '#b91c1c', display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.5rem', fontWeight: 600 }}>
                           <span>🩸 Last Donated:</span>
-                          <span>{donor.lastDonated}</span>
+                          <span>{donor.lastDonatedDate ? formatReadableDate(donor.lastDonatedDate) : donor.lastDonated}</span>
                         </div>
                       )}
 

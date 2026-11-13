@@ -1,4 +1,5 @@
 import { HARDCODED_SHEETS_CONFIG } from '../config/sheetsConfig';
+import { getDonorEligibility } from './donorEligibility';
 
 // Key for browser localStorage
 const STORAGE_KEY = 'bloodbond_donors_db';
@@ -53,6 +54,14 @@ export const deleteDonor = (id) => {
   return updated;
 };
 
+// Update donor
+export const updateDonor = (id, updates) => {
+  const current = getStoredDonors();
+  const updated = current.map(d => d.id === id ? { ...d, ...updates } : d);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  return updated;
+};
+
 // Clear all donor records
 export const clearAllDonors = () => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
@@ -91,21 +100,26 @@ export const saveSheetsConfig = (config) => {
 
 // Export to CSV helper
 export const exportToCSV = (donors) => {
-  const headers = ['ID', 'Full Name', 'Gender', 'Mobile Number', 'Blood Group', 'Unit Name', 'Address', 'Age', 'Weight (kg)', 'Last Donated', 'Status', 'Registered Date'];
-  const rows = donors.map(d => [
-    d.id,
-    `"${(d.name || '').replace(/"/g, '""')}"`,
-    `"${d.gender || ''}"`,
-    `"${d.mobile || ''}"`,
-    d.bloodGroup,
-    `"${(d.unitName || '').replace(/"/g, '""')}"`,
-    `"${(d.address || '').replace(/"/g, '""')}"`,
-    d.age,
-    d.weight,
-    `"${(d.lastDonated || '').replace(/"/g, '""')}"`,
-    d.availability || 'Available',
-    d.registeredDate
-  ]);
+  const headers = ['ID', 'Full Name', 'Gender', 'Mobile Number', 'Blood Group', 'Unit Name', 'Address', 'Age', 'Weight (kg)', 'Last Donated Date', 'Status', 'Days Remaining', 'Next Eligible Date', 'Registered Date'];
+  const rows = donors.map(d => {
+    const el = d.eligibility || getDonorEligibility(d);
+    return [
+      d.id,
+      `"${(d.name || '').replace(/"/g, '""')}"`,
+      `"${d.gender || ''}"`,
+      `"${d.mobile || ''}"`,
+      d.bloodGroup,
+      `"${(d.unitName || '').replace(/"/g, '""')}"`,
+      `"${(d.address || '').replace(/"/g, '""')}"`,
+      d.age || '',
+      d.weight || '',
+      `"${el.lastDonatedDate || d.lastDonated || ''}"`,
+      `"${el.status}"`,
+      el.daysRemaining || 0,
+      `"${el.nextEligibleDate || ''}"`,
+      d.registeredDate || ''
+    ];
+  });
 
   const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

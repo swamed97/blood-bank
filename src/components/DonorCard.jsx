@@ -1,5 +1,6 @@
 import React from 'react';
 import { Droplet, Award, CheckCircle, Phone, MapPin, Building, Calendar, Share2 } from 'lucide-react';
+import { formatReadableDate } from '../utils/donorEligibility';
 
 export const DonorCard = ({ donor, onReset }) => {
   if (!donor) return null;
@@ -99,13 +100,13 @@ export const DonorCard = ({ donor, onReset }) => {
               </div>
             </div>
 
-            {donor.lastDonated && (
+            {(donor.lastDonatedDate || donor.lastDonated) && (
               <div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                   <Calendar style={{ width: '0.75rem', height: '0.75rem' }} /> Last Donated
                 </div>
                 <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#dc2626' }}>
-                  {donor.lastDonated}
+                  {donor.lastDonatedDate ? formatReadableDate(donor.lastDonatedDate) : donor.lastDonated}
                 </div>
               </div>
             )}

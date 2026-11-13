@@ -17,16 +17,21 @@ import {
   Users,
   Droplet,
   KeyRound,
-  X
+  X,
+  Calendar,
+  Clock,
+  HeartHandshake
 } from 'lucide-react';
 
-import { exportToCSV, deleteDonor, resetToSampleDonors, getSheetsConfig } from '../utils/storage';
+import { exportToCSV, deleteDonor, updateDonor, resetToSampleDonors, getSheetsConfig } from '../utils/storage';
 import { 
   deleteDonorFromSupabase, 
+  updateDonorInSupabase,
   verifyAdminLogin, 
   updateAdminPassword 
 } from '../utils/supabaseService';
 import { SUPABASE_CONFIG } from '../config/supabaseConfig';
+import { getDonorEligibility, formatReadableDate, COOLDOWN_DAYS } from '../utils/donorEligibility';
 
 export const AdminDashboard = ({ 
   donors, 
@@ -54,8 +59,16 @@ export const AdminDashboard = ({
   const [passwordModalStatus, setPasswordModalStatus] = useState({ type: '', message: '' });
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
+  // Mark as Donated Modal State
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
+  const [selectedDonorForDonation, setSelectedDonorForDonation] = useState(null);
+  const [donationDate, setDonationDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [isSavingDonation, setIsSavingDonation] = useState(false);
+  const [donationModalError, setDonationModalError] = useState('');
+
   // Filters & Search
   const [selectedUnit, setSelectedUnit] = useState('ALL');
+  const [selectedStatus, setSelectedStatus] = useState('ALL'); // 'ALL' | 'AVAILABLE' | 'DONATED'
   const [searchQuery, setSearchQuery] = useState('');
 
   const sheetsConfig = getSheetsConfig();
@@ -68,7 +81,7 @@ export const AdminDashboard = ({
     return ['ALL', ...Array.from(set)];
   }, [donors]);
 
-  // Compute filtered donor records based on Blood Group, Unit, and Search Query
+  // Compute filtered donor records based on Blood Group, Unit, Status, and Search Query
   const filteredDonors = useMemo(() => {
     return donors.filter(donor => {
       // Blood Group Filter
@@ -77,6 +90,14 @@ export const AdminDashboard = ({
       }
       // Unit Name Filter
       if (selectedUnit !== 'ALL' && donor.unitName !== selectedUnit) {
+        return false;
+      }
+      // Status Filter (Available vs Donated in cooldown)
+      const eligibility = donor.eligibility || getDonorEligibility(donor);
+      if (selectedStatus === 'AVAILABLE' && !eligibility.isEligible) {
+        return false;
+      }
+      if (selectedStatus === 'DONATED' && eligibility.isEligible) {
         return false;
       }
       // Search Query
@@ -92,7 +113,19 @@ export const AdminDashboard = ({
       }
       return true;
     });
-  }, [donors, selectedBloodGroup, selectedUnit, searchQuery]);
+  }, [donors, selectedBloodGroup, selectedUnit, selectedStatus, searchQuery]);
+
+  // Overall counts for Available vs Donated
+  const statusCounts = useMemo(() => {
+    let available = 0;
+    let donated = 0;
+    donors.forEach(d => {
+      const el = d.eligibility || getDonorEligibility(d);
+      if (el.isEligible) available++;
+      else donated++;
+    });
+    return { available, donated, total: donors.length };
+  }, [donors]);
 
   // Handle Username & Password Authentication via Supabase
   const handleLogin = async (e) => {
@@ -179,6 +212,106 @@ export const AdminDashboard = ({
       await deleteDonorFromSupabase(id);
       const updated = deleteDonor(id);
       setDonors(updated);
+    }
+  };
+
+  // Open "Mark as Donated" Modal
+  const handleOpenDonationModal = (donor) => {
+    setSelectedDonorForDonation(donor);
+    setDonationDate(new Date().toISOString().split('T')[0]);
+    setDonationModalError('');
+    setIsDonationModalOpen(true);
+  };
+
+  // Save Donation Record (Set as Donated with Date)
+  const handleSaveDonation = async (e) => {
+    e.preventDefault();
+    if (!selectedDonorForDonation || !donationDate) return;
+
+    setIsSavingDonation(true);
+    setDonationModalError('');
+
+    try {
+      const updates = {
+        availability: 'Donated',
+        lastDonatedDate: donationDate,
+        lastDonated: donationDate
+      };
+
+      // 1. Update in Supabase
+      const res = await updateDonorInSupabase(selectedDonorForDonation.id, updates);
+      if (!res.success) {
+        setDonationModalError(res.error || 'Failed to update in database. Please check Supabase RLS update policy.');
+        setIsSavingDonation(false);
+        return;
+      }
+
+      // 2. Update local storage
+      updateDonor(selectedDonorForDonation.id, updates);
+
+      // 3. Immediately update UI state so changes appear on screen instantly
+      setDonors(prev => prev.map(d => {
+        if (d.id === selectedDonorForDonation.id) {
+          const updated = { ...d, ...updates };
+          updated.eligibility = getDonorEligibility(updated);
+          updated.availability = updated.eligibility.status;
+          return updated;
+        }
+        return d;
+      }));
+
+      setIsDonationModalOpen(false);
+      setSelectedDonorForDonation(null);
+
+      // Re-sync with database in background
+      if (refreshDonors) {
+        refreshDonors().catch(() => {});
+      }
+    } catch (err) {
+      setDonationModalError(err.message || 'Failed to save donation record');
+    } finally {
+      setIsSavingDonation(false);
+    }
+  };
+
+  // Reset donor status back to Available (Not Donated / Clear Cooldown)
+  const handleResetToAvailable = async (donor) => {
+    const isConfirmed = window.confirm(
+      `Mark "${donor.name}" as Available (സന്നദ്ധൻ / Not Donated)?\nThis will clear the donation cooldown.`
+    );
+    if (!isConfirmed) return;
+
+    try {
+      const updates = {
+        availability: 'Available',
+        lastDonatedDate: '',
+        lastDonated: 'Available'
+      };
+
+      const res = await updateDonorInSupabase(donor.id, updates);
+      if (!res.success) {
+        alert(res.error || 'Failed to update in database. Please check Supabase update policy.');
+        return;
+      }
+
+      updateDonor(donor.id, updates);
+
+      // Immediately update local UI state
+      setDonors(prev => prev.map(d => {
+        if (d.id === donor.id) {
+          const updated = { ...d, ...updates };
+          updated.eligibility = getDonorEligibility(updated);
+          updated.availability = updated.eligibility.status;
+          return updated;
+        }
+        return d;
+      }));
+
+      if (refreshDonors) {
+        refreshDonors().catch(() => {});
+      }
+    } catch (err) {
+      alert('Error updating donor status: ' + err.message);
     }
   };
 
@@ -472,6 +605,79 @@ export const AdminDashboard = ({
             />
           </div>
         </div>
+
+        {/* Row 3: Status Filter (Available vs Donated Cooldown) */}
+        <div style={{
+          paddingTop: '1rem',
+          marginTop: '1rem',
+          borderTop: '1px solid var(--border-color)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '0.75rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+              Donation Status:
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedStatus('ALL')}
+              style={{
+                padding: '0.35rem 0.75rem',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                border: '1.5px solid',
+                borderColor: selectedStatus === 'ALL' ? '#dc2626' : 'var(--border-color)',
+                backgroundColor: selectedStatus === 'ALL' ? '#dc2626' : 'transparent',
+                color: selectedStatus === 'ALL' ? '#ffffff' : 'var(--text-primary)',
+                cursor: 'pointer'
+              }}
+            >
+              All ({statusCounts.total})
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedStatus('AVAILABLE')}
+              style={{
+                padding: '0.35rem 0.75rem',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                border: '1.5px solid',
+                borderColor: selectedStatus === 'AVAILABLE' ? '#10b981' : 'var(--border-color)',
+                backgroundColor: selectedStatus === 'AVAILABLE' ? '#10b981' : 'transparent',
+                color: selectedStatus === 'AVAILABLE' ? '#ffffff' : '#059669',
+                cursor: 'pointer'
+              }}
+            >
+              ● Available ({statusCounts.available})
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedStatus('DONATED')}
+              style={{
+                padding: '0.35rem 0.75rem',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                border: '1.5px solid',
+                borderColor: selectedStatus === 'DONATED' ? '#d97706' : 'var(--border-color)',
+                backgroundColor: selectedStatus === 'DONATED' ? '#d97706' : 'transparent',
+                color: selectedStatus === 'DONATED' ? '#ffffff' : '#b45309',
+                cursor: 'pointer'
+              }}
+            >
+              ● Donated / Cooldown ({statusCounts.donated})
+            </button>
+          </div>
+
+          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+            ⏳ Auto-recovery: <strong>90 days</strong> (Male) • <strong>120 days</strong> (Female)
+          </div>
+        </div>
       </div>
 
       {/* DONOR DATA TABLE */}
@@ -561,7 +767,9 @@ export const AdminDashboard = ({
               <tbody>
                 {filteredDonors.map(d => {
                   const whatsappUrl = `https://wa.me/91${d.mobile.replace(/\D/g, '')}?text=Hello%20${encodeURIComponent(d.name)},%20urgent%20blood%20request%20for%20blood%20group%20${encodeURIComponent(d.bloodGroup)}%20from%20BloodBank%20network.`;
-                  
+                  const eligibility = d.eligibility || getDonorEligibility(d);
+                  const isDonated = eligibility.status === 'Donated';
+
                   return (
                     <tr key={d.id}>
                       <td style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
@@ -598,27 +806,105 @@ export const AdminDashboard = ({
                         {d.age ? `${d.age} yrs` : '-'} / {d.weight ? `${d.weight} kg` : '-'}
                       </td>
 
-                      <td style={{ fontSize: '0.85rem', fontWeight: 600, color: d.lastDonated ? '#dc2626' : 'var(--text-muted)' }}>
-                        {d.lastDonated || '-'}
+                      <td style={{ fontSize: '0.85rem', fontWeight: 600, color: (d.lastDonatedDate || d.lastDonated) ? '#dc2626' : 'var(--text-muted)' }}>
+                        {d.lastDonatedDate ? formatReadableDate(d.lastDonatedDate) : (d.lastDonated || '-')}
                       </td>
 
                       <td>
-                        <span style={{
-                          fontSize: '0.78rem',
-                          fontWeight: 700,
-                          color: d.availability === 'Emergency Only' ? '#f59e0b' : '#10b981',
-                          padding: '0.15rem 0.5rem',
-                          borderRadius: '9999px',
-                          backgroundColor: d.availability === 'Emergency Only' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(16, 185, 129, 0.12)'
-                        }}>
-                          ● {d.availability || 'Available'}
-                        </span>
+                        {isDonated ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                            <span style={{
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              color: '#d97706',
+                              padding: '0.15rem 0.55rem',
+                              borderRadius: '9999px',
+                              backgroundColor: 'rgba(217, 119, 6, 0.12)',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.25rem',
+                              width: 'fit-content'
+                            }}>
+                              ● Donated (രക്തം നൽകി)
+                            </span>
+                            <span style={{ fontSize: '0.72rem', color: '#b45309', fontWeight: 600 }}>
+                              ⏳ {eligibility.daysRemaining} days left ({d.gender === 'Female' ? '120d' : '90d'})
+                            </span>
+                            {eligibility.nextEligibleDate && (
+                              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                                Next: {formatReadableDate(eligibility.nextEligibleDate)}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span style={{
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            color: '#10b981',
+                            padding: '0.15rem 0.55rem',
+                            borderRadius: '9999px',
+                            backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            width: 'fit-content'
+                          }}>
+                            ● Available (സന്നദ്ധൻ)
+                          </span>
+                        )}
                       </td>
 
                       {/* Contact & Action Icons */}
                       <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                        <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end', alignItems: 'center' }}>
                           
+                          {/* Mark Donated / Reset to Available Button */}
+                          {isDonated ? (
+                            <button
+                              onClick={() => handleResetToAvailable(d)}
+                              style={{
+                                padding: '0.35rem 0.55rem',
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                                border: '1px solid #10b981',
+                                borderRadius: 'var(--radius-md)',
+                                color: '#059669',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                whiteSpace: 'nowrap'
+                              }}
+                              title="Clear cooldown & mark as Available"
+                            >
+                              <CheckCircle style={{ width: '0.8rem', height: '0.8rem' }} />
+                              Set Available
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleOpenDonationModal(d)}
+                              style={{
+                                padding: '0.35rem 0.55rem',
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                backgroundColor: '#dc2626',
+                                border: 'none',
+                                borderRadius: 'var(--radius-md)',
+                                color: '#ffffff',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                whiteSpace: 'nowrap'
+                              }}
+                              title="Mark as Donated with Date"
+                            >
+                              <Droplet style={{ width: '0.8rem', height: '0.8rem' }} />
+                              Mark Donated
+                            </button>
+                          )}
+
                           {/* WhatsApp Action Button */}
                           <a
                             href={whatsappUrl}
@@ -843,6 +1129,163 @@ export const AdminDashboard = ({
                   style={{ fontSize: '0.85rem' }}
                 >
                   {isUpdatingPassword ? 'Updating...' : 'Update Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Mark Donor as Donated Modal */}
+      {isDonationModalOpen && selectedDonorForDonation && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.65)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '1rem'
+        }}>
+          <div className="glass-card" style={{
+            maxWidth: '460px',
+            width: '100%',
+            padding: '2rem',
+            position: 'relative',
+            backgroundColor: 'var(--bg-card)',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.35)',
+            border: '1.5px solid var(--border-color)',
+            borderRadius: 'var(--radius-lg)'
+          }}>
+            <button
+              onClick={() => setIsDonationModalOpen(false)}
+              style={{
+                position: 'absolute',
+                top: '1rem',
+                right: '1rem',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                padding: '0.25rem'
+              }}
+            >
+              <X style={{ width: '1.25rem', height: '1.25rem' }} />
+            </button>
+
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+              <div style={{
+                width: '3rem',
+                height: '3rem',
+                borderRadius: '0.75rem',
+                backgroundColor: 'rgba(220, 38, 38, 0.15)',
+                color: '#dc2626',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Droplet style={{ width: '1.5rem', height: '1.5rem' }} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', margin: 0 }}>
+                  Mark Blood Donated
+                </h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
+                  രക്തം ദാനം ചെയ്തതായി രേഖപ്പെടുത്തുക
+                </p>
+              </div>
+            </div>
+
+            {/* Donor Summary Info */}
+            <div style={{
+              padding: '0.85rem 1rem',
+              borderRadius: 'var(--radius-md)',
+              backgroundColor: 'rgba(220, 38, 38, 0.05)',
+              border: '1px solid rgba(220, 38, 38, 0.15)',
+              marginBottom: '1.25rem'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                <span style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-primary)' }}>
+                  {selectedDonorForDonation.name}
+                </span>
+                <span className="blood-badge" style={{ fontSize: '0.85rem', padding: '0.2rem 0.55rem' }}>
+                  {selectedDonorForDonation.bloodGroup}
+                </span>
+              </div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                Gender: <strong>{selectedDonorForDonation.gender || 'Male'}</strong> • Unit: <strong>{selectedDonorForDonation.unitName || '-'}</strong>
+              </div>
+            </div>
+
+            {/* Cooldown Explanation Notice */}
+            <div style={{
+              padding: '0.75rem 1rem',
+              borderRadius: 'var(--radius-md)',
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              border: '1px solid rgba(245, 158, 11, 0.25)',
+              color: '#b45309',
+              fontSize: '0.82rem',
+              lineHeight: 1.45,
+              marginBottom: '1.25rem'
+            }}>
+              <strong>⏰ Cooldown Rule:</strong><br />
+              {selectedDonorForDonation.gender === 'Female' ? (
+                <>For <strong>Female donors</strong>, cooldown is <strong>120 days</strong> (4 months). The system will automatically mark this donor as Available after 120 days.</>
+              ) : (
+                <>For <strong>Male donors</strong>, cooldown is <strong>90 days</strong> (3 months). The system will automatically mark this donor as Available after 90 days.</>
+              )}
+            </div>
+
+            {donationModalError && (
+              <div style={{
+                padding: '0.75rem 1rem',
+                borderRadius: 'var(--radius-md)',
+                marginBottom: '1.25rem',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                color: '#ef4444'
+              }}>
+                {donationModalError}
+              </div>
+            )}
+
+            <form onSubmit={handleSaveDonation}>
+              <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 700 }}>
+                  <Calendar style={{ width: '0.9rem', height: '0.9rem', color: '#dc2626' }} /> Date of Blood Donation (ദാനം ചെയ്ത തീയതി)
+                </label>
+                <input
+                  type="date"
+                  value={donationDate}
+                  onChange={e => setDonationDate(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                  className="form-input"
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.65rem', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsDonationModalOpen(false)}
+                  className="btn btn-secondary"
+                  style={{ fontSize: '0.85rem' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingDonation}
+                  className="btn btn-primary"
+                  style={{ fontSize: '0.85rem', backgroundColor: '#dc2626' }}
+                >
+                  {isSavingDonation ? 'Saving...' : 'Confirm & Save Donation'}
                 </button>
               </div>
             </form>
